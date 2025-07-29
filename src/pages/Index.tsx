@@ -11,8 +11,12 @@ const Index = () => {
   const [progress, setProgress] = useState(33);
   const [currentVideo, setCurrentVideo] = useState(0);
   const [showUpload, setShowUpload] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [videoTitle, setVideoTitle] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
-  const videos = [
+  const [videos, setVideos] = useState([
     {
       id: 1,
       title: "Основы веб-разработки",
@@ -40,7 +44,51 @@ const Index = () => {
       thumbnail: "/img/24bc07b3-766c-4cc3-b247-bb30cb72e3da.jpg",
       avatar: "CP"
     }
-  ];
+  ]);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('video/')) {
+      setUploadFile(file);
+      setVideoTitle(file.name.replace(/\.[^/.]+$/, ""));
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!uploadFile || !videoTitle) return;
+    
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    // Имитируем процесс загрузки
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          // Добавляем новое видео в список
+          const newVideo = {
+            id: videos.length + 1,
+            title: videoTitle,
+            channel: "Мой канал",
+            duration: "0:00",
+            views: "0",
+            thumbnail: URL.createObjectURL(uploadFile),
+            avatar: "МК"
+          };
+          setVideos(prev => [newVideo, ...prev]);
+          
+          // Сбрасываем состояние загрузки
+          setUploadFile(null);
+          setVideoTitle('');
+          setIsUploading(false);
+          setUploadProgress(0);
+          setShowUpload(false);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 200);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -170,17 +218,75 @@ const Index = () => {
           {showUpload && (
             <Card className="mb-6 border-2 border-dashed border-gray-300">
               <CardContent className="p-6">
-                <div className="text-center">
-                  <Icon name="Upload" size={48} className="mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Загрузить видео</h3>
-                  <p className="text-gray-500 mb-4">Перетащите видеофайл сюда или нажмите для выбора</p>
-                  <Input type="file" accept="video/*" className="hidden" id="video-upload" />
-                  <label htmlFor="video-upload">
-                    <Button className="bg-red-600 hover:bg-red-700 text-white">
-                      Выбрать файл
-                    </Button>
-                  </label>
-                </div>
+                {!uploadFile ? (
+                  <div className="text-center">
+                    <Icon name="Upload" size={48} className="mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Загрузить видео</h3>
+                    <p className="text-gray-500 mb-4">Перетащите видеофайл сюда или нажмите для выбора</p>
+                    <Input 
+                      type="file" 
+                      accept="video/*" 
+                      className="hidden" 
+                      id="video-upload"
+                      onChange={handleFileUpload}
+                    />
+                    <label htmlFor="video-upload">
+                      <Button className="bg-red-600 hover:bg-red-700 text-white">
+                        Выбрать файл
+                      </Button>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-4">
+                      <video 
+                        className="w-32 h-20 object-cover rounded bg-gray-100"
+                        src={URL.createObjectURL(uploadFile)}
+                        controls={false}
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-500 mb-2">Файл: {uploadFile.name}</p>
+                        <Input
+                          placeholder="Название видео"
+                          value={videoTitle}
+                          onChange={(e) => setVideoTitle(e.target.value)}
+                          className="mb-2"
+                        />
+                      </div>
+                    </div>
+                    
+                    {isUploading && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Загрузка...</span>
+                          <span>{uploadProgress}%</span>
+                        </div>
+                        <Progress value={uploadProgress} className="h-2" />
+                      </div>
+                    )}
+                    
+                    <div className="flex space-x-2">
+                      <Button 
+                        onClick={handleUpload}
+                        disabled={!videoTitle || isUploading}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        {isUploading ? 'Загружается...' : 'Загрузить'}
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => {
+                          setUploadFile(null);
+                          setVideoTitle('');
+                          setUploadProgress(0);
+                        }}
+                        disabled={isUploading}
+                      >
+                        Отменить
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
