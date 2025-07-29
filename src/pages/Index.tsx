@@ -39,33 +39,6 @@ const Index = () => {
       views: "456K",
       thumbnail: "/img/24bc07b3-766c-4cc3-b247-bb30cb72e3da.jpg",
       avatar: "CP"
-    },
-    {
-      id: 4,
-      title: "React Hooks в деталях",
-      channel: "CodeMaster",
-      duration: "18:20",
-      views: "67K",
-      thumbnail: "/img/c1113d6e-c9c9-4dd7-a5df-1a42c7b63ff4.jpg",
-      avatar: "CM"
-    },
-    {
-      id: 5,
-      title: "Горные вершины Кавказа",
-      channel: "TravelGuide",
-      duration: "12:50",
-      views: "234K",
-      thumbnail: "/img/75f86799-bf70-4fa7-b2d0-4d8a904565d1.jpg",
-      avatar: "TG"
-    },
-    {
-      id: 6,
-      title: "Секреты французской кухни",
-      channel: "ChefAcademy",
-      duration: "25:30",
-      views: "189K",
-      thumbnail: "/img/24bc07b3-766c-4cc3-b247-bb30cb72e3da.jpg",
-      avatar: "CA"
     }
   ];
 
